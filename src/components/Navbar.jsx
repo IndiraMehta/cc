@@ -1,78 +1,44 @@
-import { useState } from 'react';
-import { Rocket, User } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { LoginModal } from './Auth/LoginModal';
-import { SignupModal } from './Auth/SignupModal';
-import { ProfileSidebar } from './ProfileSidebar';
+import { Link } from 'react-router-dom';
+import { Lightbulb, User, Menu } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
-export const Navbar = () => {
-  const { user, profile } = useAuth();
-  const [showLogin, setShowLogin] = useState(false);
-  const [showSignup, setShowSignup] = useState(false);
-  const [showProfileSidebar, setShowProfileSidebar] = useState(false);
+export const Navbar = ({ onToggleSidebar }) => {
+  const { isAuthenticated } = useAuth();
 
   return (
-    <>
-      <nav className="bg-gradient-to-red from-blue-600 to-cyan-600 text-white shadow-lg">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-2">
-              <Rocket size={32} />
-              <span className="text-2xl font-bold">InnovateHub</span>
+    <nav className="fixed top-0 left-0 right-0 z-40 bg-white shadow-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <Link to="/" className="flex items-center space-x-2 group">
+            <div className="bg-gradient-to-blue from-blue-600 to-purple-600 p-2 rounded-lg group-hover:scale-110 transition-transform">
+              <Lightbulb className="w-6 h-6 text-white" />
             </div>
+            <span className="text-xl font-bold bg-gradient-to-red from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              InnovateHub
+            </span>
+          </Link>
 
-            <div>
-              {user && profile ? (
-                <button
-                  onClick={() => setShowProfileSidebar(true)}
-                  className="flex items-center space-x-2 bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition"
-                >
-                  <User size={20} />
-                  <span>{profile.name}</span>
-                </button>
-              ) : (
-                <div className="space-x-3">
-                  <button
-                    onClick={() => setShowLogin(true)}
-                    className="bg-white bg-opacity-20 hover:bg-opacity-30 px-6 py-2 rounded-lg transition font-medium"
-                  >
-                    Login
-                  </button>
-                  <button
-                    onClick={() => setShowSignup(true)}
-                    className="bg-white text-blue-600 hover:bg-gray-100 px-6 py-2 rounded-lg transition font-medium"
-                  >
-                    Sign Up
-                  </button>
-                </div>
-              )}
-            </div>
+          <div className="flex items-center space-x-4">
+            {isAuthenticated ? (
+              <button
+                onClick={onToggleSidebar}
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gradient-to-red from-blue-600 to-purple-600 text-white hover:shadow-lg transition-all hover:scale-105"
+              >
+                <User className="w-5 h-5" />
+                <span className="hidden sm:inline">Profile</span>
+                <Menu className="w-4 h-4" />
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className="px-6 py-2 rounded-lg bg-gradient-to-red from-blue-600 to-purple-600 text-white font-medium hover:shadow-lg transition-all hover:scale-105"
+              >
+                Login / Signup
+              </Link>
+            )}
           </div>
         </div>
-      </nav>
-
-      <LoginModal
-        isOpen={showLogin}
-        onClose={() => setShowLogin(false)}
-        onSwitchToSignup={() => {
-          setShowLogin(false);
-          setShowSignup(true);
-        }}
-      />
-
-      <SignupModal
-        isOpen={showSignup}
-        onClose={() => setShowSignup(false)}
-        onSwitchToLogin={() => {
-          setShowSignup(false);
-          setShowLogin(true);
-        }}
-      />
-
-      <ProfileSidebar
-        isOpen={showProfileSidebar}
-        onClose={() => setShowProfileSidebar(false)}
-      />
-    </>
+      </div>
+    </nav>
   );
 };

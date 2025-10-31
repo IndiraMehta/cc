@@ -1,58 +1,96 @@
-import { useState, useEffect } from 'react';
-import { AuthProvider } from './contexts/AuthContext';
+import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
-import { Chatbot } from './components/Chatbot';
-import { Homepage } from './pages/Homepage';
-import { HostEvents } from './pages/HostEvents';
-import { MyEvents } from './pages/MyEvents';
-import { JudgeEvents } from './pages/JudgeEvents';
-import { Chat } from './pages/Chat';
+import { Sidebar } from './components/Sidebar';
+import { ChatBot } from './components/ChatBot';
+import { HomePage } from './pages/HomePage';
+import { LoginPage } from './pages/LoginPage';
+import { SignupPage } from './pages/SignupPage';
+import { ProfilePage } from './pages/ProfilePage';
+import { HostEventsPage } from './pages/HostEventsPage';
+import { MyEventsPage } from './pages/MyEventsPage';
+import { JudgeEventsPage } from './pages/JudgeEventsPage';
+import { ChatPage } from './pages/ChatPage';
 
-function App() {
-  const [currentPage, setCurrentPage] = useState('home');
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+};
 
-  useEffect(() => {
-    const handleNavigate = (event) => {
-      if (typeof event.detail === 'string') {
-        setCurrentPage(event.detail);
-      } else if (event.detail?.page) {
-        setCurrentPage(event.detail.page);
-      } else {
-        setCurrentPage(event.detail);
-      }
-    };
-
-    window.addEventListener('navigate', handleNavigate);
-    return () => window.removeEventListener('navigate', handleNavigate);
-  }, []);
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'home':
-        return <Homepage />;
-      case 'host':
-        return <HostEvents />;
-      case 'myevents':
-        return <MyEvents />;
-      case 'judge':
-        return <JudgeEvents />;
-      case 'chats':
-      case 'chat':
-        return <Chat />;
-      default:
-        return <Homepage />;
-    }
-  };
+const AppContent = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   return (
+    <>
+      <Navbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      {isAuthenticated && <ChatBot />}
+
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/host-events"
+          element={
+            <ProtectedRoute>
+              <HostEventsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-events"
+          element={
+            <ProtectedRoute>
+              <MyEventsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/judge-events"
+          element={
+            <ProtectedRoute>
+              <JudgeEventsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/chat"
+          element={
+            <ProtectedRoute>
+              <ChatPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/chatbot"
+          element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </>
+  );
+};
+
+function App() {
+  return (
     <AuthProvider>
-      <div className="min-h-screen bg-gradient-to-bred from-gray-50 to-blue-50">
-        <Navbar />
-        <main>
-          {renderPage()}
-        </main>
-        <Chatbot />
-      </div>
+      <Router>
+        <AppContent />
+      </Router>
     </AuthProvider>
   );
 }

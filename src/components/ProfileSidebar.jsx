@@ -1,5 +1,5 @@
 import { X, User, Calendar, Trophy, MessageCircle, Bot, LogOut, PlusCircle } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 export const ProfileSidebar = ({ isOpen, onClose }) => {
   const { profile, signOut } = useAuth();
