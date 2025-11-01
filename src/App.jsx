@@ -57,6 +57,14 @@ const AppContent = () => {
           }
         />
         <Route
+          path="/navbar"
+          element={
+            <ProtectedRoute>
+              <Navbar />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/judge-events"
           element={
             <ProtectedRoute>
